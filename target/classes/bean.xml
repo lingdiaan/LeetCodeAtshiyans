@@ -1,0 +1,59 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<beans xmlns = "http://www.springframework.org/schema/beans"
+       xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation = "http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context
+   http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop
+   http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/tx
+   http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <context:annotation-config></context:annotation-config>
+
+
+<!--<bean class="User" name="user" autowire="byType">-->
+<!--    <property name="name" value="施英杰"/>-->
+<!--    <property name="age" value="24"/>-->
+<!--    <property name="dog" ref="dog"/>-->
+
+<!--</bean>-->
+
+<!--    <bean class="Dog" name="dog" autowire="byType">-->
+
+<!--        <property name="name" value="wangcai"/>-->
+<!--        <property name="age" value="3"/>-->
+<!--    </bean>-->
+    <bean class="pojo.Dog" id="dog"/>
+    <bean class="pojo.Cat" id="cat"/>
+    <bean class="pojo.People" id="people" >
+        <property name="name" value="yj"/>
+
+
+    </bean>
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--结合AOP实现事务的织入-->
+    <!--配置事务的通知-->
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <!--给哪些方法配置事务,传播特性-->
+        <tx:attributes>
+            <tx:method name="add" propagation="REQUIRED" />
+            <tx:method name="delete" propagation="REQUIRED" />
+            <tx:method name="update" propagation="REQUIRED" />
+            <tx:method name="select" read-only="true" />
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!--配置事务切入-->
+    <aop:config>
+        <aop:pointcut id="point" expression="execution(* com.yj.mapper.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="point"/>
+    </aop:config>
+</beans>
